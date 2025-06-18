@@ -12,12 +12,12 @@ function ArrowIcon() {
         fill="currentColor"
       />
     </svg>
-  );
+  )
 }
 
 export default function Footer() {
   return (
-    <footer className="mb-16 prose">
+    <footer className="prose mb-16">
       <a
         rel="noopener noreferrer"
         target="_blank"
@@ -27,5 +27,5 @@ export default function Footer() {
       </a>
       <p className="prose-sm">© {new Date().getFullYear()} MIT Licensed</p>
     </footer>
-  );
+  )
 }

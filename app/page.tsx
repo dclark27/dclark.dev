@@ -47,5 +47,5 @@ export default function Page() {
         </li>
       </ul>
     </section>
-  );
+  )
 }
