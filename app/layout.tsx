@@ -10,6 +10,10 @@ import { Navbar } from "@/components/nav"
 
 import "./globals.css"
 
+import Script from "next/script"
+
+import GameOfLife from "@/components/game-of-life"
+
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
@@ -45,17 +49,27 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const board = Array.from({ length: 200 }).map(() => {
+    return Array.from({ length: 100 }).map(() => {
+      return Math.random() > 0.9
+    })
+  })
+
   return (
     <html
       lang="en"
       className={cx(
-        "bg-white text-black dark:bg-black dark:text-white",
+        "bg-transparent text-black dark:text-white",
         GeistSans.variable,
         GeistMono.variable
       )}
     >
+      <head>
+        <Script src="https://unpkg.com/react-scan/dist/auto.global.js" />
+      </head>
       <body className="mx-4 mt-8 max-w-xl antialiased lg:mx-auto">
         <main className="mt-6 flex min-w-0 flex-auto flex-col px-2 md:px-0">
+          <GameOfLife board={board} />
           <Navbar />
           {children}
           <Footer />
