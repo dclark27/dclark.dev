@@ -13,17 +13,31 @@ import { GameOfLifeLayout } from "@/components/game-of-life-layout"
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: "Next.js Portfolio Starter",
-    template: "%s | Next.js Portfolio Starter",
+    default: "dclark.dev",
+    template: "%s | dclark.dev",
   },
-  description: "This is my portfolio.",
+  description: "I'm Devin Clark. Web developer and tech enthusiast.",
   openGraph: {
-    title: "My Portfolio",
-    description: "This is my portfolio.",
+    title: "dclark.dev",
+    description: "I'm Devin Clark. Web developer and tech enthusiast.",
     url: baseUrl,
-    siteName: "My Portfolio",
+    siteName: "dclark.dev",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "/og",
+        width: 1200,
+        height: 630,
+        alt: "A randomly generated Game of Life pattern with the text dclark.dev",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "dclark.dev",
+    description: "I'm Devin Clark. Web developer and tech enthusiast.",
+    images: ["/og"],
   },
   robots: {
     index: true,

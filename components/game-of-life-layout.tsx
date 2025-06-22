@@ -2,14 +2,11 @@
 
 import type React from "react"
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Palette, Settings } from "lucide-react"
+import { MoonIcon, Palette, Settings } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Slider } from "@/components/ui/slider"
-
-const CANVAS_WIDTH = 1200
-const CANVAS_HEIGHT = 800
 
 interface GameRules {
   minSurvival: number
@@ -26,11 +23,12 @@ export const GameOfLifeLayout = ({
   const animationRef = useRef<number>(null)
   const gridRef = useRef<boolean[][]>([])
   const [isRunning, setIsRunning] = useState(true)
-  const [rainbowMode, setRainbowMode] = useState(false)
+  const [rainbowMode, setRainbowMode] = useState(new Date().getMonth() === 5)
   const [isMouseDown, setIsMouseDown] = useState(false)
   const [showControls, setShowControls] = useState(false)
   const [brushSize, setBrushSize] = useState(1)
-  const [gridSize, setGridSize] = useState(4)
+  const [gridSize, setGridSize] = useState(12)
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 })
 
   // Game rules state - Conway's default rules
   const [rules, setRules] = useState<GameRules>({
@@ -39,11 +37,33 @@ export const GameOfLifeLayout = ({
     birth: 3, // Dead cells need exactly 3 neighbors to become alive
   })
 
-  const rows = Math.floor(CANVAS_HEIGHT / gridSize)
-  const cols = Math.floor(CANVAS_WIDTH / gridSize)
+  const rows = Math.floor(canvasSize.height / gridSize)
+  const cols = Math.floor(canvasSize.width / gridSize)
+
+  // Dynamically adjust canvas size
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect
+        // Update canvas resolution
+        canvas.width = width
+        canvas.height = height
+        setCanvasSize({ width, height })
+      }
+    })
+
+    resizeObserver.observe(canvas)
+
+    return () => resizeObserver.disconnect()
+  }, [])
 
   // Initialize grid when grid size changes
   useEffect(() => {
+    if (canvasSize.width === 0 || canvasSize.height === 0) return
+
     const newGrid = Array(rows)
       .fill(null)
       .map(() =>
@@ -99,7 +119,7 @@ export const GameOfLifeLayout = ({
     (ctx: CanvasRenderingContext2D, currentGrid: boolean[][]) => {
       if (!currentGrid || currentGrid.length === 0) return
 
-      ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+      ctx.clearRect(0, 0, canvasSize.width, canvasSize.height)
 
       for (let i = 0; i < rows; i++) {
         for (let j = 0; j < cols; j++) {
@@ -115,7 +135,7 @@ export const GameOfLifeLayout = ({
         }
       }
     },
-    [rows, cols, rainbowMode, gridSize]
+    [rows, cols, rainbowMode, gridSize, canvasSize]
   )
 
   const animationRefCurr = animationRef.current
@@ -217,13 +237,10 @@ export const GameOfLifeLayout = ({
     <div className="relative w-full h-screen bg-black overflow-hidden">
       <canvas
         ref={canvasRef}
-        width={CANVAS_WIDTH}
-        height={CANVAS_HEIGHT}
         className="absolute inset-0 cursor-crosshair"
         style={{
           width: "100%",
           height: "100%",
-          objectFit: "cover",
         }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -237,7 +254,7 @@ export const GameOfLifeLayout = ({
           variant="outline"
           size="sm"
           onClick={() => setShowControls(!showControls)}
-          className="backdrop-blur-md bg-white/10 border-white/20 text-white hover:bg-white/20"
+          className="backdrop-blur-md bg-white/10 border-white/20 text-white "
         >
           <Settings className="w-4 h-4 mr-2" />
           {"Controls"}
@@ -246,7 +263,7 @@ export const GameOfLifeLayout = ({
           variant="outline"
           size="sm"
           onClick={() => setRainbowMode(!rainbowMode)}
-          className={`backdrop-blur-md bg-white/10 border-white/20 text-white hover:bg-white/20 transition-all duration-300 ${
+          className={`backdrop-blur-md bg-white/10 border-white/20 text-white ${
             rainbowMode
               ? "bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500"
               : ""
@@ -270,13 +287,61 @@ export const GameOfLifeLayout = ({
             <CardContent className="space-y-6">
               {/* Grid Size Control */}
               <div className="space-y-3">
-                <div className="text-sm bg-white/5 p-3 rounded-lg">
-                  <p className="font-medium text-white/90 mb-2">
-                    {"Grid Settings:"}
+                {/* Quick Grid Size Presets */}
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-white/90">
+                    {"Quick Grid Sizes:"}
                   </p>
-                  <p className="text-white/70 text-xs">
-                    {`Cell Size: ${gridSize}px (${cols} × ${rows} cells)`}
-                  </p>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setGridSize(1.2)}
+                      className="bg-white/5 border-white/20 text-white hover:bg-white/10 h-8"
+                    >
+                      {"Tiny (1px)"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setGridSize(4)}
+                      className="bg-white/5 border-white/20 text-white hover:bg-white/10 h-8"
+                    >
+                      {"Small (4px)"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setGridSize(8)}
+                      className="bg-white/5 border-white/20 text-white hover:bg-white/10 h-8"
+                    >
+                      {"Medium (8px)"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setGridSize(12)}
+                      className="bg-white/5 border-white/20 text-white hover:bg-white/10 h-8"
+                    >
+                      {"Large (12px)"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setGridSize(16)}
+                      className="bg-white/5 border-white/20 text-white hover:bg-white/10 h-8"
+                    >
+                      {"Huge (16px)"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setGridSize(20)}
+                      className="bg-white/5 border-white/20 text-white hover:bg-white/10 h-8"
+                    >
+                      {"Giant (20px)"}
+                    </Button>
+                  </div>
                 </div>
 
                 <div>
@@ -310,19 +375,6 @@ export const GameOfLifeLayout = ({
                     className="mt-2"
                   />
                 </div>
-              </div>
-
-              {/* Current Rules Display */}
-              <div className="text-sm space-y-1 bg-white/5 p-3 rounded-lg">
-                <p className="font-medium text-white/90">Current Rules:</p>
-                <p className="text-white/70">
-                  {
-                    "• Live cells with {rules.minSurvival}-{rules.maxSurvival} neighbors survive"
-                  }
-                </p>
-                <p className="text-white/70">
-                  {"• Dead cells with {rules.birth} neighbors become alive"}
-                </p>
               </div>
 
               {/* Game Rules */}
@@ -431,63 +483,6 @@ export const GameOfLifeLayout = ({
                     className="bg-white/5 border-white/20 text-white hover:bg-white/10 h-8"
                   >
                     {"Seeds (0-2/3)"}
-                  </Button>
-                </div>
-              </div>
-
-              {/* Quick Grid Size Presets */}
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-white/90">
-                  {"Quick Grid Sizes:"}
-                </p>
-                <div className="grid grid-cols-3 gap-2 text-xs">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setGridSize(1)}
-                    className="bg-white/5 border-white/20 text-white hover:bg-white/10 h-8"
-                  >
-                    {"Tiny (1px)"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setGridSize(4)}
-                    className="bg-white/5 border-white/20 text-white hover:bg-white/10 h-8"
-                  >
-                    {"Small (4px)"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setGridSize(8)}
-                    className="bg-white/5 border-white/20 text-white hover:bg-white/10 h-8"
-                  >
-                    {"Medium (8px)"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setGridSize(12)}
-                    className="bg-white/5 border-white/20 text-white hover:bg-white/10 h-8"
-                  >
-                    {"Large (12px)"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setGridSize(16)}
-                    className="bg-white/5 border-white/20 text-white hover:bg-white/10 h-8"
-                  >
-                    {"Huge (16px)"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setGridSize(20)}
-                    className="bg-white/5 border-white/20 text-white hover:bg-white/10 h-8"
-                  >
-                    {"Giant (20px)"}
                   </Button>
                 </div>
               </div>
