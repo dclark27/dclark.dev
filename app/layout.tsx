@@ -1,3 +1,5 @@
+import "./globals.css"
+
 import type { Metadata } from "next"
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -5,14 +7,8 @@ import { GeistMono } from "geist/font/mono"
 import { GeistSans } from "geist/font/sans"
 
 import { baseUrl } from "@/lib/sitemap"
-import Footer from "@/components/footer"
-import { Navbar } from "@/components/nav"
-
-import "./globals.css"
-
-import Script from "next/script"
-
-import GameOfLife from "@/components/game-of-life"
+import { cn } from "@/lib/utils"
+import { GameOfLifeLayout } from "@/components/game-of-life-layout"
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
@@ -42,37 +38,23 @@ export const metadata: Metadata = {
   },
 }
 
-const cx = (...classes: string[]) => classes.filter(Boolean).join(" ")
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const board = Array.from({ length: 200 }).map(() => {
-    return Array.from({ length: 100 }).map(() => {
-      return Math.random() > 0.9
-    })
-  })
-
   return (
     <html
       lang="en"
-      className={cx(
-        "bg-transparent text-black dark:text-white",
+      className={cn(
+        "text-black bg-white dark:text-white dark:bg-black",
         GeistSans.variable,
         GeistMono.variable
       )}
     >
-      <head>
-        <Script src="https://unpkg.com/react-scan/dist/auto.global.js" />
-      </head>
-      <body className="mx-4 mt-8 max-w-xl antialiased lg:mx-auto">
-        <main className="mt-6 flex min-w-0 flex-auto flex-col px-2 md:px-0">
-          <GameOfLife board={board} />
-          <Navbar />
-          {children}
-          <Footer />
+      <body className="antialiased">
+        <main className="flex-auto min-w-0 flex flex-col px-2 md:px-0">
+          <GameOfLifeLayout>{children}</GameOfLifeLayout>
           <Analytics />
           <SpeedInsights />
         </main>
