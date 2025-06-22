@@ -67,7 +67,7 @@ export default function RootLayout({
       )}
     >
       <body className="antialiased">
-        <main className="flex-auto min-w-0 flex flex-col px-2 md:px-0">
+        <main className="flex-auto min-w-0 flex flex-col">
           <GameOfLifeLayout>{children}</GameOfLifeLayout>
           <Analytics />
           <SpeedInsights />
