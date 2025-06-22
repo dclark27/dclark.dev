@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useCallback, useEffect, useRef, useState } from "react"
-import { MoonIcon, Palette, Settings } from "lucide-react"
+import { Palette, Settings } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -72,7 +72,7 @@ export const GameOfLifeLayout = ({
           .map(() => Math.random() > 0.85)
       )
     gridRef.current = newGrid
-  }, [rows, cols, gridSize])
+  }, [rows, cols, gridSize, canvasSize.width, canvasSize.height])
 
   // Conway's Game of Life logic with custom rules
   const getNextGeneration = useCallback(
