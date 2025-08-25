@@ -1,4 +1,3 @@
-import Image from "next/image"
 import {
   GithubIcon,
   InstagramIcon,
@@ -55,12 +54,10 @@ export default function Page() {
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
       <div className="w-full max-w-md p-8 mx-4 space-y-8 bg-white/10 border border-white/20 rounded-2xl shadow-2xl backdrop-blur-xl pointer-events-auto">
         <section className="space-y-4 text-white">
-          <Image
-            src={"/logos/icon-dark.png"}
-            alt="logo"
-            width={100}
-            height={100}
-          />
+          <span
+            className="size-24 flex bg-cover bg-center bg-[url(/logos/logo-dark.png)]"
+            aria-label="logo"
+          ></span>
           <h1 className="text-4xl font-extrabold italic tracking-tighter">
             {"dclark.dev"}
           </h1>
